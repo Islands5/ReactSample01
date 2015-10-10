@@ -1,68 +1,43 @@
 var React = require('react');
 var request = require('superagent');
 
-var Comment = React.createClass({
-  render: function() {
-    return (
-      <div className="comment">
-        <h2 className="commentAuthor">
-          {this.props.author}
-        </h2>
-        <a href={this.props.url}>{this.props.url}</a>
-      </div>
-    );
-  }
-});
-
-var CommentList = React.createClass({
-  render: function() {
-    var commentNodes = this.props.data.map(function(comment) {
-      return (
-        <Comment author={comment.title} url={comment.url} />
-      );
-    });
-    return (
-      <div className="commentList">
-        {commentNodes}
-      </div>
-    );
-  }
-});
-
-var CommentForm = React.createClass({
-  render: function() {
-    return (
-      <div className="commentForm">
-        Hello, world! I am a CommentForm.
-      </div>
-    );
-  }
-});
-
-var CommentBox = React.createClass({
-  getInitialState: function() {
-    return {data: []};
+var User = React.createClass({
+  propTypes: {
+    name: React.PropTypes.string.isRequired,
+    id: React.PropTypes.number.isRequired
   },
-  loadCommentsFromServer: function() {
-    request.get(this.props.url)
+  render() {
+    return (
+      <div>{this.props.id}:{this.props.name}</div>
+    );
+  }
+});
+
+var Users = React.createClass({
+  getInitialState() {
+    return {
+      users: [ {id: 1, name: "foo"}, {id: 2, name: "bar"} ]
+    }
+  },
+  componentDidMount() {
+    request.get('http://localhost:8000/users.json')
     .set('Accept', 'application/json')
-    .end(function(err, data) {
-      this.setState({data: JSON.parse(data.text)});
+    .end(function(err, res){
+      var users = this.state.users.concat(JSON.parse(res.text));
+      this.setState({users: users});
     }.bind(this));
   },
-  componentDidMount: function() {
-    this.loadCommentsFromServer();
-    setInterval(this.loadCommentsFromServer, this.props.pollInterval);
-  },
-  render: function() {
+  render() {
+    var users = this.state.users.map(function(user){
+      return <User id={user.id} name={user.name} key={user.id} />
+    });
     return (
-      <div className="commentBox">
-        <h1>Comments</h1>
-        <CommentList data={this.state.data} />
-        <CommentForm />
+      <div>
+        <p>ユーザー一覧</p>
+        {users}
       </div>
     );
   }
 });
 
-React.render(<CommentBox url="https://qiita.com/api/v2/items" pollInterval={100000} />, document.getElementById('content'));
+React.render(<Users />, document.getElementById('content'));
