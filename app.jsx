@@ -1,68 +1,43 @@
 var React = require('react');
 var request = require('superagent');
 
-var Comment = React.createClass({
-  render: function() {
-    return (
-      <div className="comment">
-        <h2 className="commentAuthor">
-          {this.props.author}
-        </h2>
-        <a href={this.props.url}>{this.props.url}</a>
-      </div>
-    );
-  }
-});
-
-var CommentList = React.createClass({
-  render: function() {
-    var commentNodes = this.props.data.map(function(comment) {
-      return (
-        <Comment author={comment.title} url={comment.url} />
-      );
-    });
-    return (
-      <div className="commentList">
-        {commentNodes}
-      </div>
-    );
-  }
-});
-
-var CommentForm = React.createClass({
-  render: function() {
-    return (
-      <div className="commentForm">
-        Hello, world! I am a CommentForm.
-      </div>
-    );
-  }
-});
-
-var CommentBox = React.createClass({
-  getInitialState: function() {
-    return {data: []};
+var Text1 = React.createClass({
+  getInitialState() {
+    return {
+      textValue: "initial value"
+    };
   },
-  loadCommentsFromServer: function() {
-    request.get(this.props.url)
-    .set('Accept', 'application/json')
-    .end(function(err, data) {
-      this.setState({data: JSON.parse(data.text)});
-    }.bind(this));
+  changeText(e) {
+    this.setState({textValue: e.target.value});
   },
-  componentDidMount: function() {
-    this.loadCommentsFromServer();
-    setInterval(this.loadCommentsFromServer, this.props.pollInterval);
-  },
-  render: function() {
+  render() {
     return (
-      <div className="commentBox">
-        <h1>Comments</h1>
-        <CommentList data={this.state.data} />
-        <CommentForm />
+      <div>
+        <p>{this.state.textValue}</p>
+        <input type="text" value={this.state.textValue} onChange={this.changeText} />
       </div>
     );
   }
 });
 
-React.render(<CommentBox url="https://qiita.com/api/v2/items" pollInterval={100000} />, document.getElementById('content'));
+var Text2 = React.createClass({
+  getInitialState() {
+    return {
+      textValue: "initial value"
+    };
+  },
+  changeText(e) {
+    this.setState({ textValue: this.refs.inputText.getDOMNode().value });
+  },
+  render() {
+    return (
+      <div>
+        <p>{this.state.textValue}</p>
+        <input type="text" ref="inputText" defaultValue="initial value" />
+        <button onClick={this.changeText}>change</button>
+      </div>
+    );
+  }
+});
+
+React.render(<Text2 />, document.getElementById('content'));
