@@ -1,5 +1,5 @@
 var React = require('react');
 
-var Main = require('./components/Main.jsx');
+var Main = require('./src/components/Main.jsx');
 
 React.render(<Main />, document.getElementById('content'));
